@@ -43,7 +43,9 @@ export const Todo = () => {
   }
   useEffect(()=>{
     const gottenTodoFromStorage = getTodo();
-    dispatch({type: "AddWhenReload", storageTodo: gottenTodoFromStorage});
+    if(gottenTodoFromStorage){
+      dispatch({type: "AddWhenReload", storageTodo: gottenTodoFromStorage});
+    }
   },[])
   return (
     <section className="todo-section">
