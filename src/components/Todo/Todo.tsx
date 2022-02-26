@@ -1,36 +1,49 @@
 import React, { useEffect, useReducer, useRef, useState } from 'react'
-import { getData, setDataToStorage } from '../LocalStorage/LocalStorage';
+import { getTodo,  removeTodo,  setTodoToStorage } from '../LocalStorage/LocalStorage';
 import { DisplayTodo } from './DisplayTodo';
 import "./Todo.css"
  interface Todo {
   id: number,
   todoText : string
 }
-
+type actionType = {type:"ADD", todoText : string} | {type:"REMOVE", id: number } | {type: "AddWhenReload", storageTodo : Todo[]};
+const reducer = (state:Todo[], action:actionType)=>{
+  switch(action.type){
+    case "ADD":{
+      const updatingTodo = [
+        ...state,
+        {
+          id:state.length,
+          todoText: action.todoText
+        }
+      ]
+      setTodoToStorage(updatingTodo);
+      return updatingTodo;
+    }
+      
+      case "REMOVE":
+        removeTodo(action.id);
+        return state.filter(todo => todo.id !== action.id);
+      case "AddWhenReload":
+        return action.storageTodo;
+  }
+}
 export const Todo = () => {
-  const [myTodo, setMyTodo] = useState<Todo[]>([]);
+  const [todo, dispatch] = useReducer(reducer, []);
   const todoRef = React.useRef<HTMLInputElement>(null);
   const submitTodo = (event:React.FormEvent<HTMLFormElement>)=> {
    event.preventDefault();
     if(todoRef.current){
-      const updatingTodo = [
-        ...myTodo,
-        {
-          id:myTodo.length,
-          todoText: todoRef.current.value
-        }
-      ]
-      setMyTodo(updatingTodo);
-      setDataToStorage(updatingTodo)
+      dispatch({type: "ADD", todoText: todoRef.current.value});
       todoRef.current.value = "";
     }
   }
   const deleteTodo = (id:number)=>{
-    setMyTodo(myTodo.filter(todo => todo.id !== id));
+    dispatch({type: "REMOVE", id: id});
   }
   useEffect(()=>{
-    const gottenTodoFromStorage = getData();
-    setMyTodo(gottenTodoFromStorage);
+    const gottenTodoFromStorage = getTodo();
+    dispatch({type: "AddWhenReload", storageTodo: gottenTodoFromStorage});
   },[])
   return (
     <section className="todo-section">
@@ -42,7 +55,7 @@ export const Todo = () => {
           <input type="submit" value="Add" />
         </form>
         <div>
-          {myTodo.map(todo => <DisplayTodo key={todo.id} todo={todo} deleteTodo={deleteTodo}/>)}
+          {todo.map(todo => <DisplayTodo key={todo.id} todo={todo} deleteTodo={deleteTodo}/>)}
         </div>
         </div>
       </div>
