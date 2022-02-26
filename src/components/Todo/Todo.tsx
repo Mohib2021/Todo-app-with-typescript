@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {  getTodo,  removeTodo,  setTodoToStorage } from '../LocalStorage/LocalStorage';
 import { DisplayTodo } from './DisplayTodo';
 import "./Todo.css"
@@ -31,7 +31,9 @@ export const Todo = () => {
   }
   useEffect(()=>{
     const gottenTodoFromStorage = getTodo();
-    setMyTodo(gottenTodoFromStorage);
+    if(gottenTodoFromStorage){
+      setMyTodo(gottenTodoFromStorage);
+    }
   },[])
   return (
     <section className="todo-section">
