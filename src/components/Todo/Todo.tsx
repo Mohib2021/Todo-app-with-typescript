@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer, useRef, useState } from 'react'
-import { getData, setDataToStorage } from '../LocalStorage/LocalStorage';
+import {  getTodo,  removeTodo,  setTodoToStorage } from '../LocalStorage/LocalStorage';
 import { DisplayTodo } from './DisplayTodo';
 import "./Todo.css"
  interface Todo {
@@ -21,15 +21,16 @@ export const Todo = () => {
         }
       ]
       setMyTodo(updatingTodo);
-      setDataToStorage(updatingTodo)
+      setTodoToStorage(updatingTodo)
       todoRef.current.value = "";
     }
   }
   const deleteTodo = (id:number)=>{
     setMyTodo(myTodo.filter(todo => todo.id !== id));
+    removeTodo(id);
   }
   useEffect(()=>{
-    const gottenTodoFromStorage = getData();
+    const gottenTodoFromStorage = getTodo();
     setMyTodo(gottenTodoFromStorage);
   },[])
   return (
